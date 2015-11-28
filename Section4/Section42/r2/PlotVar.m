@@ -11,7 +11,7 @@ j = 182;
 % Chose which variables to show
 top = 1;
 % Which alpha level for the adjustment for ranking
-ai = 1;
+ai = 2;
 
 
 bestMeas(bestMeas == 0) = NaN;
@@ -102,6 +102,6 @@ xlabel(filterName(namex{1}),'Interpreter','Latex','FontSize',fsl);
 ylim([minY maxY]);
 
 set(h, 'Position', [150 150 1600 300])
-set(h,'PaperSize',[36 8],'PaperPositionMode','auto');
+set(h,'PaperSize',[14 3.2],'PaperPositionMode','auto');
 saveas(h,'Example_r2','pdf');
 
