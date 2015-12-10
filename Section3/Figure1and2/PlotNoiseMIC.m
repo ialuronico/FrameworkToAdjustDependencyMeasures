@@ -6,7 +6,7 @@ clc;
 
 whichMeas = 'MIC';
 % just the quadratic relationship
-typ = 2;
+typ = 1;
 
 % Load results with the Adjusted Measure
 load(['Saved/A' whichMeas '/typ' num2str(typ)]);
@@ -40,7 +40,8 @@ for i=totbands
   %X label
   x1 = ['$\mbox{MIC} = ' num2str(mean(MeasSaved(:,i,k)),2) '$'];
   x2 = ['$\mbox{AMIC} = ' num2str(mean(AMeasSaved(:,i,k)),2) '$'];
-  xll = {x1,x2};
+  %xll = {x1}; % does not include AMIC
+  xll = {x1,x2}; % includes AMIC
   %xlabel
   title(xll,'Interpreter','latex');
 end
