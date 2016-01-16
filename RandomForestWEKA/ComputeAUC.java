@@ -14,15 +14,22 @@ public class ComputeAUC {
 	public static void main(String[] args) {
 		 
 		// Add the directory where you put the datasets here
-    String dirStr = "/home/simone/Dropbox/Java/weka-3-7-13/src/main/java/RandomForestsGiniAlpha/Datasets";         
+    String dirStr = "/home/ubuntu/Dropbox/Java/weka-3-7-13/src/main/java/RandomForestsGiniAlpha/Datasets";         
      
-    // Chose alpha to test
+    // Chose alpha to test on average
     String alpha = "0.05";    
+    
+    // List of best Alphas for the sorted (alphabetically) data sets
+    // Obtained with tuning via Cross-validation with TuneAlpha.java
+    
+    String[] bestAlpha = {"0.3","0.05","0.7","0.01","1","0.1","0.3","0.01",
+    					  "0.05", "0.05","0.01","1","0.005","1","0.3","1","0.3",
+    					  "0.01", "0.1"};
     
     // How many folds for cross-validation
     int CV = 2;
     // How many repetitions of cross-validation
-    int trial, times = 50;
+    int trial, times = 30;
     
     // Parameters for Random Forests
     // Number of trees
@@ -30,7 +37,7 @@ public class ComputeAUC {
     
     // Parallelization parameters
     // Number of cores in your machine
-    String slots = "8";
+    String slots = "36";
     
     // Further variables
     double meanAUC = 0;
@@ -59,6 +66,7 @@ public class ComputeAUC {
           
           trial = 1;
           meanAUC = 0;
+          System.out.println();
           while (trial <= times ){
           	RandomForestAdjustedGini rf = new RandomForestAdjustedGini();
           	
@@ -68,14 +76,17 @@ public class ComputeAUC {
             
             eval = new Evaluation(data);
             eval.crossValidateModel(rf, data, CV, new Random(trial));
-            meanAUC += eval.weightedAreaUnderROC()*100;
+            double wAUC = eval.weightedAreaUnderROC()*100;
+            System.out.print(wAUC + " ");
+            meanAUC += wAUC;
             trial++;
           }
           meanAUC /= times;
-          System.out.println("Random Forests with Gini gain, AUC = " + meanAUC);
+          System.out.println("\nRandom Forests with Gini gain, AUC = " + meanAUC);
           
           trial = 1;
           meanAUC = 0;
+          System.out.println();
           while (trial <= times ){
           	RandomForestAdjustedGini rf = new RandomForestAdjustedGini();
           	
@@ -85,14 +96,17 @@ public class ComputeAUC {
             
             eval = new Evaluation(data);
             eval.crossValidateModel(rf, data, CV, new Random(trial));
-            meanAUC += eval.weightedAreaUnderROC()*100;
+            double wAUC = eval.weightedAreaUnderROC()*100;
+            System.out.print(wAUC + " ");
+            meanAUC += wAUC;
             trial++;
           }
           meanAUC /= times;
-          System.out.println("Random Forests with SGini gain, AUC = " + meanAUC);
-          
+          System.out.println("\nRandom Forests with SGini gain, AUC = " + meanAUC);
+                    
           trial = 1;
           meanAUC = 0;
+          System.out.println();
           while (trial <= times ){
           	RandomForestAdjustedGini rf = new RandomForestAdjustedGini();
           	
@@ -102,14 +116,40 @@ public class ComputeAUC {
             
             eval = new Evaluation(data);
             eval.crossValidateModel(rf, data, CV, new Random(trial));
-            meanAUC += eval.weightedAreaUnderROC()*100;
+            double wAUC = eval.weightedAreaUnderROC()*100;
+            System.out.print(wAUC + " ");
+            meanAUC += wAUC;
             trial++;
           }
           meanAUC /= times;          
-          System.out.println("Random Forests with AGini(alpha" +  alpha + ") gain, AUC = " + meanAUC);
+          System.out.println("\nRandom Forests with AGini(alpha = " +  alpha + ") gain, AUC = " + meanAUC);
+          
+          // Choose the best alpha for this data set
+          String bestAlphaForThis = bestAlpha[f];
+          
+          trial = 1;
+          meanAUC = 0;
+          System.out.println();
+          while (trial <= times ){
+          	RandomForestAdjustedGini rf = new RandomForestAdjustedGini();
+          	          	
+          	// Set the options 
+            String[] options = {"-C", "aginialphagain","-A",bestAlphaForThis,"-I", numTrees, "-K", rndAtt, "-num-slots", slots};
+            rf.setOptions(options);
+            
+            eval = new Evaluation(data);
+            eval.crossValidateModel(rf, data, CV, new Random(trial));
+            double wAUC = eval.weightedAreaUnderROC()*100;
+            System.out.print(wAUC + " ");
+            meanAUC += wAUC;
+            trial++;
+          }
+          meanAUC /= times;          
+          System.out.println("\nRandom Forests tuned with AGini(alpha = " +  bestAlphaForThis + ") gain, AUC = " + meanAUC);
           
           System.out.println();
-	      }
+	      }	      
+	      
 	    }
     }catch(Exception e) { e.printStackTrace(); }
 	}
