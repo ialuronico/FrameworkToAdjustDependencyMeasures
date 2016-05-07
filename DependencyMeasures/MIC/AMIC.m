@@ -2,7 +2,9 @@
 % adjusted for Quantification as per Equation 3.4
 
 % Input 
-% S - number of permutations
+% S - number of permutations 
+%   In the paper I used 30 permutations for the adjustment for quantification
+%   but S = 10 might be used to speed up the computation.
 % MICalpha, c - refer to MIC documentation
 
 
